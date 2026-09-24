@@ -3,80 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌷 PinkKitty Word Quest</title>
+  <meta name="description" content="PinkKitty Word Quest — a cozy English vocabulary typing game. Learn words, examples, and meanings while you play.">
+  <meta name="theme-color" content="#ff8fbd">
+  <title>PinkKitty • Word Quest</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">🐱 PinkKitty</div>
-    <nav>
-      <button id="dictionaryBtn" class="ghost">🔎 Dictionary</button>
-      <button id="bookBtn" class="ghost">📖 Revision Book</button>
-    </nav>
-  </header>
+  <div class="bg-decoration deco-1">♡</div>
+  <div class="bg-decoration deco-2">✦</div>
+  <div class="bg-decoration deco-3">♡</div>
 
-  <main class="container">
-    <section class="hero">
-      <div class="eyebrow">LEARN &amp; CHILL</div>
-      <h1>Word Quest 🌷</h1>
-      <p>Learn a few English words while you play. No levels, no pressure.</p>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="kitty">🐱</div>
+        <div>
+          <h1>PinkKitty</h1>
+          <p>Word Quest</p>
+        </div>
+      </div>
+      <button class="book-button" id="bookButton" aria-label="Open Revision Book">
+        📖 <span>Revision Book</span>
+      </button>
+    </header>
+
+    <section class="hero-card">
+      <div class="hero-copy">
+        <span class="eyebrow">LEARN &amp; CHILL</span>
+        <h2>Type the word.<br><span>Learn something new.</span></h2>
+        <p>Relax, practise English vocabulary, and build your own little revision book.</p>
+      </div>
+      <div class="hero-kitty" aria-hidden="true">🎀🐱</div>
     </section>
 
-    <section class="stats">
-      <div><span>Score</span><b id="score">0</b></div>
-      <div><span>Streak</span><b id="streak">0</b></div>
-      <div><span>Words</span><b id="words">0 / 300</b></div>
+    <section class="stats" aria-label="Game statistics">
+      <div class="stat">
+        <span class="stat-label">SCORE</span>
+        <strong id="score">0</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">STREAK</span>
+        <strong id="streak">0 🔥</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">WORDS</span>
+        <strong id="wordCount">0 / 20</strong>
+      </div>
     </section>
 
-    <section class="game-card">
+    <section class="game-card" id="gameCard">
       <div class="progress-row">
-        <span id="progress">Word 1 / 300</span>
-        <span>🌸</span>
+        <span id="progressText">Word 1 of 20</span>
+        <span id="message" aria-live="polite">Take your time ♡</span>
+      </div>
+      <div class="progress-track"><div id="progressBar"></div></div>
+
+      <div class="word-area">
+        <span class="small-label">TYPE THIS WORD</span>
+        <div class="target-word" id="targetWord">wander</div>
+        <p class="hint" id="hint">Take a guess — you've got this!</p>
+
+        <form id="answerForm" autocomplete="off">
+          <input
+            id="answerInput"
+            type="text"
+            inputmode="text"
+            autocapitalize="none"
+            spellcheck="false"
+            placeholder="Type the word here..."
+            aria-label="Type the vocabulary word"
+          >
+          <button type="submit" class="submit-button">Check ✨</button>
+        </form>
+        <button class="skip-button" id="skipButton" type="button">Skip this word</button>
       </div>
 
-      <div class="question">
-        <div class="label">TYPE THE ENGLISH WORD</div>
-        <h2 id="targetMeaning">Loading…</h2>
+      <div class="feedback hidden" id="feedback" aria-live="polite">
+        <div class="feedback-icon" id="feedbackIcon">✓</div>
+        <div>
+          <h3 id="feedbackTitle">Great!</h3>
+          <p id="feedbackText"></p>
+        </div>
       </div>
 
-      <form id="answerForm">
-        <input id="answer" autocomplete="off" autocapitalize="none" spellcheck="false"
-               placeholder="type the English word here…" aria-label="English answer">
-        <button class="primary" type="submit">Check ✨</button>
-      </form>
-
-      <div id="feedback" class="feedback"></div>
-
-      <div class="actions">
-        <button id="skipBtn" class="secondary">Skip</button>
-        <button id="nextBtn" class="primary" hidden>Next →</button>
-      </div>
+      <button class="next-button hidden" id="nextButton" type="button">Next word →</button>
     </section>
 
-    <section class="tip">
+    <section class="tip-card">
       <span>💡</span>
-      <div><b>Little tip</b><br>Don't worry about getting every word right. The goal is to meet new words and have fun.</div>
+      <div>
+        <strong>PinkKitty tip</strong>
+        <p>Don't worry about getting every word right. Seeing a word again is part of learning!</p>
+      </div>
     </section>
+
+    <footer>
+      <p>© 2026 PinkKitty · Made for learning &amp; chill 🌷</p>
+    </footer>
   </main>
 
-  <dialog id="bookDialog">
-    <div class="dialog-head">
-      <div><h2>📖 Revision Book</h2><small><span id="bookCount">0</span> words saved</small></div>
-      <button onclick="bookDialog.close()" class="close">×</button>
+  <dialog id="bookDialog" class="book-dialog">
+    <div class="dialog-header">
+      <div>
+        <span class="eyebrow">YOUR COLLECTION</span>
+        <h2>📖 Revision Book</h2>
+      </div>
+      <button class="close-button" id="closeBook" aria-label="Close Revision Book">×</button>
     </div>
+    <p class="dialog-subtitle">Words you've answered correctly will appear here.</p>
     <div id="bookList" class="book-list"></div>
+    <div class="book-empty" id="bookEmpty">
+      <div>🐾</div>
+      <strong>Your book is empty</strong>
+      <p>Start playing and collect your first word!</p>
+    </div>
   </dialog>
 
-  <dialog id="dictionaryDialog">
-    <div class="dialog-head">
-      <div><h2>🔎 Dictionary</h2><small>Look up almost any English word</small></div>
-      <button onclick="dictionaryDialog.close()" class="close">×</button>
+  <dialog id="endDialog" class="end-dialog">
+    <div class="end-kitty">🎀🐱</div>
+    <span class="eyebrow">QUEST COMPLETE</span>
+    <h2>Nice work!</h2>
+    <p>You finished today's Word Quest.</p>
+    <div class="final-score">
+      <span>Final score</span>
+      <strong id="finalScore">0</strong>
     </div>
-    <form id="dictForm" class="dict-form">
-      <input id="dictSearch" placeholder="e.g. curious" autocomplete="off">
-      <button class="primary" type="submit">Search</button>
-    </form>
-    <div id="dictResult" class="dict-result"></div>
+    <div class="end-actions">
+      <button class="primary-button" id="playAgain">Play again ✨</button>
+      <button class="secondary-button" id="openBookFromEnd">Open Revision Book</button>
+    </div>
   </dialog>
 
   <script src="script.js"></script>
