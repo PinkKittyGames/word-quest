@@ -1,40 +1,25 @@
-# 🎀 PinkKitty Word Quest
+# 🌷 PinkKitty Word Quest — 300 Words
 
-A cozy English vocabulary typing game made by **PinkKitty**.
+A relaxed English vocabulary game by PinkKitty.
 
-## Features
+## What's new
+- 300 curated English words
+- No difficulty levels — words are mixed randomly for a relaxed experience
+- Chinese meaning → type the English word
+- Example sentence + Chinese translation after answering
+- 📖 Revision Book with localStorage
+- 🔎 Dictionary search is still included
+- 🔊 Pronunciation audio when the dictionary provides it
+- Mobile-friendly static website
+- No API key required for the dictionary
 
-- Type the English word instead of tapping it
-- Learn the Chinese meaning after each answer
-- See an English example sentence and Chinese translation
-- Score + streak system
-- 20 vocabulary words
-- Personal Revision Book
-- Revision Book is saved in the browser with `localStorage`
-- Responsive design for phones and desktop
-- No external libraries or dependencies
+## Dictionary
+The built-in dictionary uses the Free Dictionary API:
+https://api.dictionaryapi.dev/
 
-## How to play locally
+The game itself keeps its 300-word curated vocabulary separate from dictionary searches.
 
-Open `index.html` in a browser.
-
-## Publish with GitHub Pages
-
-1. Create a GitHub repository, for example `word-quest`.
-2. Upload `index.html`, `style.css`, and `script.js`.
-3. In the repository, open **Settings → Pages**.
-4. Choose **Deploy from a branch**.
-5. Select the `main` branch and `/ (root)`.
-6. Save and wait for GitHub Pages to publish the site.
-
-## Copyright
+## GitHub Pages
+Upload `index.html`, `style.css`, and `script.js` to the repository root and enable GitHub Pages from the `main` branch.
 
 © 2026 PinkKitty. All rights reserved.
-
-The game's original code, design, vocabulary presentation, and written content are intended for this project. Do not copy, redistribute, or reuse the project as your own without permission.
-
-If you later add third-party fonts, images, sounds, or other assets, check their individual licenses before publishing.
-
-## Notes
-
-This is a static website, so no server or database is required for the current version.
