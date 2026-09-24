@@ -198,7 +198,7 @@ const WORDS = [
   {"word":"assure","zh":"保证；使放心","example":"I assure you that everything is fine.","exampleZh":"我向你保证一切都很好。"},
   {"word":"boost","zh":"提升；促进","example":"A short walk can boost my mood.","exampleZh":"短暂散步可以改善我的心情。"},
   {"word":"contemplate","zh":"仔细考虑","example":"She sat quietly and contemplated her next step.","exampleZh":"她安静地坐着思考下一步。"},
-{"word":"coordinate","zh":"协调","example":"We need to coordinate our plans.","exampleZh":"我们需要协调我们的计划。"},
+  {"word":"coordinate","zh":"协调","example":"We need to coordinate our plans.","exampleZh":"我们需要协调我们的计划。"},
   {"word":"devote","zh":"投入；奉献","example":"She devotes her free time to drawing.","exampleZh":"她把空闲时间投入到绘画中。"},
   {"word":"distinguish","zh":"区分；辨别","example":"It can be difficult to distinguish the two sounds.","exampleZh":"区分这两个声音可能很困难。"},
   {"word":"embrace","zh":"拥抱；接受","example":"She decided to embrace the change.","exampleZh":"她决定接受这个变化。"},
