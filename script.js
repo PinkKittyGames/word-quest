@@ -198,7 +198,7 @@ const WORDS = [
   {"word":"assure","zh":"保证；使放心","example":"I assure you that everything is fine.","exampleZh":"我向你保证一切都很好。"},
   {"word":"boost","zh":"提升；促进","example":"A short walk can boost my mood.","exampleZh":"短暂散步可以改善我的心情。"},
   {"word":"contemplate","zh":"仔细考虑","example":"She sat quietly and contemplated her next step.","exampleZh":"她安静地坐着思考下一步。"},
-  {"word":"coordinate","zh":"协调","example":"We need to coordinate our plans.","exampleZh":"我们需要协调我们的计划。"},
+{"word":"coordinate","zh":"协调","example":"We need to coordinate our plans.","exampleZh":"我们需要协调我们的计划。"},
   {"word":"devote","zh":"投入；奉献","example":"She devotes her free time to drawing.","exampleZh":"她把空闲时间投入到绘画中。"},
   {"word":"distinguish","zh":"区分；辨别","example":"It can be difficult to distinguish the two sounds.","exampleZh":"区分这两个声音可能很困难。"},
   {"word":"embrace","zh":"拥抱；接受","example":"She decided to embrace the change.","exampleZh":"她决定接受这个变化。"},
@@ -278,597 +278,280 @@ const WORDS = [
   {"word":"compassion","zh":"同情；关怀","example":"She treated everyone with compassion.","exampleZh":"她以关怀的态度对待每个人。"},
   {"word":"coordinate","zh":"协调","example":"We need to coordinate the schedule.","exampleZh":"我们需要协调时间表。"},
   {"word":"devote","zh":"投入；奉献","example":"He devoted years to the project.","exampleZh":"他多年投入于这个项目。"},
-  {"word":"distinguish","zh":"区分；辨别","example":"Can you distinguish the two colours?","exampleZh":"你能区分这两种颜色吗？"},
-  {"word":"embrace","zh":"接受；拥抱","example":"She decided to embrace the new opportunity.","exampleZh":"她决定接受这个新机会。"},
-  {"word":"enhance","zh":"增强；改善","example":"Good lighting can enhance the room.","exampleZh":"良好的灯光可以改善房间的感觉。"},
-  {"word":"facilitate","zh":"促进；使便利","example":"The new system will facilitate communication.","exampleZh":"新系统将促进沟通。"},
-  {"word":"implement","zh":"实施；执行","example":"The team implemented the plan successfully.","exampleZh":"团队成功实施了这个计划。"},
-  {"word":"integrate","zh":"整合；融入","example":"It takes time to integrate into a new environment.","exampleZh":"融入新环境需要时间。"},
-  {"word":"allocate","zh":"分配","example":"We need to allocate our budget carefully.","exampleZh":"我们需要谨慎分配预算。"},
-  {"word":"assure","zh":"保证；使放心","example":"I assure you that everything is fine.","exampleZh":"我向你保证一切都很好。"},
-  {"word":"contemplate","zh":"仔细考虑","example":"She sat quietly and contemplated her future.","exampleZh":"她安静地坐着思考自己的未来。"},
-  {"word":"devote","zh":"投入；奉献","example":"She devoted her weekend to the project.","exampleZh":"她把周末投入到了这个项目中。"},
   {"word":"distinguish","zh":"区分；辨别","example":"It is difficult to distinguish the twins.","exampleZh":"很难区分这对双胞胎。"},
   {"word":"enhance","zh":"增强；改善","example":"This feature enhances the user experience.","exampleZh":"这个功能改善了用户体验。"},
   ];
 
-const $ = (selector) => document.querySelector(selector);
 
-const learnedKey = "pinkkitty-learned";
+const state = {
+  words: [],
+  index: 0,
+  score: 0,
+  streak: 0,
+  answered: false,
+  learned: loadLearned()
+};
 
-let pool = [];
-let current = null;
-let score = 0;
-let streak = 0;
-let solved = 0;
+const $ = id => document.getElementById(id);
 
-let learned = JSON.parse(
-  localStorage.getItem(learnedKey) || "[]"
-);
+const targetWord = $("targetWord");
+const answerInput = $("answerInput");
+const feedback = $("feedback");
+const feedbackIcon = $("feedbackIcon");
+const feedbackTitle = $("feedbackTitle");
+const feedbackText = $("feedbackText");
+const nextButton = $("nextButton");
+const message = $("message");
+const progressBar = $("progressBar");
+const progressText = $("progressText");
+const scoreEl = $("score");
+const streakEl = $("streak");
+const wordCount = $("wordCount");
+const hint = $("hint");
+const bookDialog = $("bookDialog");
+const endDialog = $("endDialog");
 
-function shuffle(arr) {
-  return [...arr].sort(() => Math.random() - 0.5);
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[c]));
-}
-
-function normalizeZh(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[，,、。.!！?？；;：:（）()「」『』"“”‘’]/g, "");
-}
-
-function chineseMeaningMatches(answer, meaning) {
-  const a = normalizeZh(answer);
-
-  if (!a) return false;
-
-  const parts = String(meaning || "")
-    .split(/[；;]/)
-    .map(normalizeZh)
-    .filter(Boolean);
-
-  return parts.some(part =>
-    a === part ||
-    a.includes(part) ||
-    part.includes(a)
-  );
+function loadLearned() {
+  try {
+    return JSON.parse(localStorage.getItem("pinkkitty-learned") || "[]");
+  } catch {
+    return [];
+  }
 }
 
 function saveLearned() {
-  localStorage.setItem(
-    learnedKey,
-    JSON.stringify(learned)
-  );
+  localStorage.setItem("pinkkitty-learned", JSON.stringify(state.learned));
 }
 
-function addToBook(item) {
-  if (!item || !item.word) return;
+function shuffle(array) {
+  return [...array].sort(() => Math.random() - 0.5);
+}
 
-  const exists = learned.some(
-    x =>
-      x.word.toLowerCase() ===
-      item.word.toLowerCase()
-  );
-
-  if (!exists) {
-    learned.unshift(item);
-    saveLearned();
-  }
+function currentWord() {
+  return state.words[state.index];
 }
 
 function startGame() {
-  pool = shuffle(WORDS);
-
-  score = 0;
-  streak = 0;
-  solved = 0;
-
+  state.words = shuffle(WORDS);
+  state.index = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.answered = false;
   updateStats();
-  nextQuestion();
+  showWord();
+}
+
+function showWord() {
+  const item = currentWord();
+  state.answered = false;
+
+  targetWord.textContent = item.word;
+  hint.textContent = "Take a guess — you've got this!";
+  answerInput.value = "";
+  answerInput.disabled = false;
+  $("answerForm").classList.remove("hidden");
+  $("skipButton").classList.remove("hidden");
+  feedback.classList.add("hidden");
+  nextButton.classList.add("hidden");
+
+  const number = state.index + 1;
+  progressText.textContent = `Word ${number} of ${state.words.length}`;
+  progressBar.style.width = `${(number / state.words.length) * 100}%`;
+  message.textContent = state.streak > 1 ? `${state.streak} in a row! ✨` : "Take your time ♡";
+
+  requestAnimationFrame(() => answerInput.focus());
 }
 
 function updateStats() {
-  $("#score").textContent = score;
-  $("#streak").textContent = streak;
-  $("#words").textContent = `${solved} / 300`;
-}
-
-function nextQuestion() {
-  if (!pool.length) {
-    pool = shuffle(WORDS);
-  }
-
-  current = pool.pop();
-
-  /*
-   * 重点：
-   * 这里显示的是英文单词，
-   * 玩家输入的是中文意思。
-   */
-  $("#targetMeaning").textContent =
-    current.word;
-
-  $("#progress").textContent =
-    `Word ${solved + 1} / 300`;
-
-  $("#answer").value = "";
-  $("#answer").disabled = false;
-
-  $("#feedback").className =
-    "feedback";
-
-  $("#feedback").innerHTML = "";
-
-  $("#nextBtn").hidden = true;
-
-  $("#answer").focus();
+  scoreEl.textContent = state.score;
+  streakEl.textContent = `${state.streak} 🔥`;
+  wordCount.textContent = `${Math.min(state.index, state.words.length)} / ${state.words.length || 20}`;
 }
 
 function checkAnswer(event) {
   event.preventDefault();
+  if (state.answered) return;
 
-  if (!current) return;
+  const answer = answerInput.value.trim().toLowerCase();
 
-  const answer =
-    $("#answer").value.trim();
+  if (!answer) {
+    hint.textContent = "Type the word first ♡";
+    answerInput.focus();
+    return;
+  }
 
-  const correct =
-    chineseMeaningMatches(
-      answer,
-      current.zh
-    );
+  const item = currentWord();
+  const correct = answer === item.word.toLowerCase();
+
+  state.answered = true;
+  answerInput.disabled = true;
+  $("answerForm").classList.add("hidden");
+  $("skipButton").classList.add("hidden");
+
+  feedback.classList.remove("hidden", "correct", "wrong");
 
   if (correct) {
+    state.streak += 1;
+    state.score += 10 + Math.min(state.streak * 2, 20);
 
-    score +=
-      10 + Math.min(streak, 10);
+    feedback.classList.add("correct");
+    feedbackIcon.textContent = "✓";
+    feedbackTitle.textContent = state.streak >= 3 ? "Amazing streak! 🎀" : "Correct! ✨";
 
-    streak += 1;
-    solved += 1;
+    feedbackText.innerHTML =
+      `<strong>${item.word}</strong> = ${item.meaning}<br>` +
+      `${item.example}<br>${item.translation}`;
 
-    addToBook(current);
-
-    $("#feedback").className =
-      "feedback good";
-
-    $("#feedback").innerHTML = `
-      <strong>✨ Correct!</strong>
-
-      <div class="word-reveal">
-        ${escapeHtml(current.word)}
-      </div>
-
-      <div>
-        ${escapeHtml(current.zh)}
-      </div>
-
-      <p>
-        ${escapeHtml(current.example)}
-      </p>
-
-      <p>
-        ${escapeHtml(current.exampleZh)}
-      </p>
-    `;
-
-    $("#nextBtn").hidden = false;
-    $("#answer").disabled = true;
-
-    updateStats();
+    message.textContent = "Added to your Revision Book 📖";
+    addLearned(item);
 
   } else {
+    state.streak = 0;
 
-    streak = 0;
+    feedback.classList.add("wrong");
+    feedbackIcon.textContent = "!";
+    feedbackTitle.textContent = "Not quite — that's okay ♡";
 
-    $("#feedback").className =
-      "feedback bad";
+    feedbackText.innerHTML =
+      `The answer is <strong>${item.word}</strong> = ${item.meaning}<br>` +
+      `${item.example}<br>${item.translation}`;
 
-    $("#feedback").innerHTML = `
-      <strong>Almost! 💭</strong>
+    message.textContent = "You'll remember it next time!";
+  }
 
-      <div>
-        Try again — check the Chinese meaning.
-      </div>
-    `;
+  updateStats();
 
-    updateStats();
+  nextButton.classList.remove("hidden");
+  nextButton.textContent =
+    state.index === state.words.length - 1
+      ? "Finish quest ✨"
+      : "Next word →";
+}
+
+function addLearned(item) {
+  if (!state.learned.some(w => w.word === item.word)) {
+    state.learned.push(item);
+    saveLearned();
   }
 }
 
-function skipQuestion() {
-  if (!current) return;
+function skipWord() {
+  if (state.answered) return;
 
-  streak = 0;
+  state.streak = 0;
+  state.answered = true;
 
-  $("#feedback").className =
-    "feedback";
+  answerInput.disabled = true;
+  $("answerForm").classList.add("hidden");
+  $("skipButton").classList.add("hidden");
 
-  $("#feedback").innerHTML = `
-    <strong>Skipped 🌷</strong>
+  const item = currentWord();
 
-    <div class="word-reveal">
-      ${escapeHtml(current.word)}
-    </div>
+  feedback.classList.remove("hidden", "correct", "wrong");
+  feedback.classList.add("wrong");
 
-    <p>
-      ${escapeHtml(current.zh)}
-    </p>
+  feedbackIcon.textContent = "→";
+  feedbackTitle.textContent = "Skipped";
 
-    <p>
-      ${escapeHtml(current.example)}
-    </p>
+  feedbackText.innerHTML =
+    `The word was <strong>${item.word}</strong> = ${item.meaning}<br>` +
+    `${item.example}<br>${item.translation}`;
 
-    <p>
-      ${escapeHtml(current.exampleZh)}
-    </p>
-  `;
+  message.textContent = "No worries — learning takes repetition ♡";
 
-  addToBook(current);
-
-  $("#nextBtn").hidden = false;
-  $("#answer").disabled = true;
+  nextButton.classList.remove("hidden");
+  nextButton.textContent =
+    state.index === state.words.length - 1
+      ? "Finish quest ✨"
+      : "Next word →";
 
   updateStats();
 }
 
-function goNext() {
-  $("#answer").disabled = false;
-  nextQuestion();
-}
+function nextWord() {
+  if (!state.answered) return;
 
-function renderBook() {
-  const list = $("#bookList");
-
-  $("#bookCount").textContent =
-    learned.length;
-
-  if (!learned.length) {
-
-    list.innerHTML =
-      "<p class='empty'>Your Revision Book is empty for now 🌱</p>";
-
+  if (state.index >= state.words.length - 1) {
+    showEnd();
     return;
   }
 
-  list.innerHTML =
-    learned.map(item => `
+  state.index += 1;
+  updateStats();
+  showWord();
+}
 
-      <article class="book-item">
+function showEnd() {
+  $("finalScore").textContent = state.score;
+  endDialog.showModal();
+}
 
-        <h3>
-          ${escapeHtml(item.word)}
-        </h3>
+function renderBook() {
+  const list = $("bookList");
+  const empty = $("bookEmpty");
 
-        <p>
-          ${escapeHtml(item.zh || "")}
-        </p>
+  list.innerHTML = "";
 
-        ${
-          item.example
-            ? `
-              <div class="example">
-                ${escapeHtml(item.example)}
-              </div>
-            `
-            : ""
-        }
+  if (state.learned.length === 0) {
+    empty.classList.remove("hidden");
+    return;
+  }
 
-        ${
-          item.exampleZh
-            ? `
-              <div class="example-zh">
-                ${escapeHtml(item.exampleZh)}
-              </div>
-            `
-            : ""
-        }
+  empty.classList.add("hidden");
 
-        ${
-          item.audio
-            ? `
-              <button
-                class="mini-audio"
-                data-audio="${escapeHtml(item.audio)}">
-                🔊 Listen
-              </button>
-            `
-            : ""
-        }
+  [...state.learned].reverse().forEach(item => {
+    const card = document.createElement("article");
+    card.className = "book-item";
 
-      </article>
+    card.innerHTML = `
+      <div class="book-word">
+        <strong>${escapeHTML(item.word)}</strong>
+        <span>${escapeHTML(item.meaning)}</span>
+      </div>
+      <p class="book-example">“${escapeHTML(item.example)}”</p>
+      <p>${escapeHTML(item.translation)}</p>
+    `;
 
-    `).join("");
+    list.appendChild(card);
+  });
 }
 
 function openBook() {
   renderBook();
-
-  $("#bookDialog").showModal();
+  bookDialog.showModal();
 }
 
-function openDictionary() {
-  $("#dictionaryDialog").showModal();
-
-  $("#dictSearch").focus();
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-async function searchDictionary(event) {
-  event.preventDefault();
+$("answerForm").addEventListener("submit", checkAnswer);
+$("skipButton").addEventListener("click", skipWord);
+nextButton.addEventListener("click", nextWord);
 
-  const word =
-    $("#dictSearch").value.trim();
+$("bookButton").addEventListener("click", openBook);
+$("closeBook").addEventListener("click", () => bookDialog.close());
 
-  const result =
-    $("#dictResult");
+$("playAgain").addEventListener("click", () => {
+  endDialog.close();
+  startGame();
+});
 
-  if (!word) return;
+$("openBookFromEnd").addEventListener("click", () => {
+  endDialog.close();
+  openBook();
+});
 
-  result.innerHTML =
-    "<p>Looking it up… 🔎</p>";
-
-  try {
-
-    const response = await fetch(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`
-    );
-
-    if (!response.ok) {
-      throw new Error("Not found");
-    }
-
-    const data =
-      await response.json();
-
-    const entry =
-      data[0];
-
-    const phonetic =
-      entry.phonetic ||
-      entry.phonetics?.find(
-        p => p.text
-      )?.text ||
-      "";
-
-    const audio =
-      entry.phonetics?.find(
-        p => p.audio
-      )?.audio ||
-      "";
-
-    const meanings =
-      entry.meanings || [];
-
-    const definitions =
-      meanings.flatMap(m =>
-        (m.definitions || [])
-          .slice(0, 2)
-          .map(d => ({
-            partOfSpeech:
-              m.partOfSpeech || "",
-
-            definition:
-              d.definition || "",
-
-            example:
-              d.example || ""
-          }))
-      );
-
-    result.innerHTML = `
-
-      <div class="dict-card">
-
-        <h3>
-          ${escapeHtml(entry.word)}
-        </h3>
-
-        ${
-          phonetic
-            ? `
-              <div class="phonetic">
-                ${escapeHtml(phonetic)}
-              </div>
-            `
-            : ""
-        }
-
-        ${
-          audio
-            ? `
-              <button
-                class="audio-btn"
-                data-audio="${escapeHtml(audio)}">
-                🔊 Pronunciation
-              </button>
-            `
-            : ""
-        }
-
-        <div class="definitions">
-
-          ${
-            definitions.map(d => `
-
-              <div class="definition">
-
-                <span class="pos">
-                  ${escapeHtml(
-                    d.partOfSpeech
-                  )}
-                </span>
-
-                <p>
-                  ${escapeHtml(
-                    d.definition
-                  )}
-                </p>
-
-                ${
-                  d.example
-                    ? `
-                      <em>
-                        ${escapeHtml(
-                          d.example
-                        )}
-                      </em>
-                    `
-                    : ""
-                }
-
-              </div>
-
-            `).join("")
-          }
-
-        </div>
-
-        <button
-          id="saveDictWord"
-          class="primary">
-          📖 Add to Revision Book
-        </button>
-
-      </div>
-    `;
-
-    const saveBtn =
-      $("#saveDictWord");
-
-    saveBtn.addEventListener(
-      "click",
-      () => {
-
-        addToBook({
-          word: entry.word,
-
-          zh:
-            "Dictionary result — add your own Chinese meaning if you want.",
-
-          example:
-            definitions.find(
-              d => d.example
-            )?.example || "",
-
-          exampleZh: "",
-
-          audio
-        });
-
-        saveBtn.textContent =
-          "✓ Added";
-
-        renderBook();
-      }
-    );
-
-    result
-      .querySelectorAll(
-        "[data-audio]"
-      )
-      .forEach(btn => {
-
-        btn.addEventListener(
-          "click",
-          () => {
-
-            const audioUrl =
-              btn.dataset.audio;
-
-            if (audioUrl) {
-              new Audio(
-                audioUrl
-              ).play();
-            }
-
-          }
-        );
-
-      });
-
-  } catch (error) {
-
-    result.innerHTML = `
-
-      <div class="dict-error">
-
-        <strong>
-          Couldn't find that word.
-        </strong>
-
-        <p>
-          Check the spelling and try again.
-        </p>
-
-      </div>
-
-    `;
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    if (bookDialog.open) bookDialog.close();
+    if (endDialog.open) endDialog.close();
   }
-}
-
-document.addEventListener(
-  "click",
-  event => {
-
-    const btn =
-      event.target.closest(
-        ".mini-audio"
-      );
-
-    if (btn?.dataset.audio) {
-
-      new Audio(
-        btn.dataset.audio
-      ).play();
-
-    }
-  }
-);
-
-$("#answerForm")
-  .addEventListener(
-    "submit",
-    checkAnswer
-  );
-
-$("#skipBtn")
-  .addEventListener(
-    "click",
-    skipQuestion
-  );
-
-$("#nextBtn")
-  .addEventListener(
-    "click",
-    goNext
-  );
-
-$("#bookBtn")
-  .addEventListener(
-    "click",
-    openBook
-  );
-
-$("#dictionaryBtn")
-  .addEventListener(
-    "click",
-    openDictionary
-  );
-
-$("#dictForm")
-  .addEventListener(
-    "submit",
-    searchDictionary
-  );
+});
 
 startGame();
