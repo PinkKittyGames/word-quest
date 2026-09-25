@@ -279,7 +279,26 @@ const WORDS = [
   {word:"coordinate",meaning:"协调",example:"We need to coordinate the schedule.",translation:"我们需要协调时间表。"},
   {word:"devote",meaning:"投入；奉献",example:"He devoted years to the project.",translation:"他多年投入于这个项目。"},
   {word:"distinguish",meaning:"区分；辨别",example:"It is difficult to distinguish the twins.",translation:"很难区分这对双胞胎。"},
-  {word:"enhance",meaning:"增强；改善",example:"This feature enhances the user experience.",translation:"这个功能改善了用户体验。"}
+  {word:"enhance",meaning:"增强；改善",example:"This feature enhances the user experience.",translation:"这个功能改善了用户体验。"}, 
+    {word:"admire",meaning:"欣赏；钦佩",example:"I really admire people who stay kind in difficult situations.",translation:"我很欣赏那些在困难情况下依然保持善良的人。"},
+  {word:"arrange",meaning:"安排；整理",example:"She helped me arrange the books on the shelf.",translation:"她帮我把书整理到书架上。"},
+  {word:"bargain",meaning:"便宜货；讨价还价",example:"This jacket was a real bargain.",translation:"这件外套真的很便宜。"},
+  {word:"capture",meaning:"捕捉；记录",example:"The photo captured a beautiful sunset.",translation:"这张照片记录下了美丽的日落。"},
+  {word:"cheerful",meaning:"愉快的；开朗的",example:"She always has a cheerful smile.",translation:"她总是带着愉快的笑容。"},
+  {word:"delicate",meaning:"精致的；脆弱的",example:"Be careful with this delicate glass.",translation:"拿这个易碎的玻璃杯时要小心。"},
+  {word:"eager",meaning:"渴望的；热切的",example:"He was eager to learn something new.",translation:"他很渴望学习新的东西。"},
+  {word:"explore",meaning:"探索；探究",example:"We spent the afternoon exploring the old town.",translation:"我们花了一下午探索那座老城区。"},
+  {word:"hesitate",meaning:"犹豫",example:"Don't hesitate to ask for help.",translation:"不要犹豫，有需要就寻求帮助。"},
+  {word:"locate",meaning:"找到；确定位置",example:"I couldn't locate my keys this morning.",translation:"我今天早上找不到我的钥匙。"},
+  {word:"mention",meaning:"提到",example:"She didn't mention anything about the meeting.",translation:"她没有提到任何关于会议的事情。"},
+  {word:"ordinary",meaning:"普通的；平常的",example:"It looked like an ordinary day at first.",translation:"一开始，那看起来只是普通的一天。"},
+  {word:"persuade",meaning:"说服",example:"She persuaded me to try the new restaurant.",translation:"她说服我去尝试那家新餐厅。"},
+  {word:"remind",meaning:"提醒；使想起",example:"Please remind me to call her tomorrow.",translation:"请提醒我明天打电话给她。"},
+  {word:"reliable",meaning:"可靠的",example:"He is a reliable friend who always keeps his promises.",translation:"他是个可靠的朋友，总是信守承诺。"},
+  {word:"rescue",meaning:"营救；救援",example:"The team worked together to rescue the lost hiker.",translation:"团队一起努力营救那名迷路的徒步者。"},
+  {word:"specific",meaning:"具体的；特定的",example:"Can you give me a specific example?",translation:"你能给我一个具体的例子吗？"},
+  {word:"whisper",meaning:"低声说；耳语",example:"She whispered something in my ear.",translation:"她在我耳边低声说了些什么。"},
+  {word:"generous",meaning:"慷慨的；大方的",example:"He was generous enough to share his food with everyone.",translation:"他很大方，愿意和大家分享他的食物。"},
 ];
 
 
