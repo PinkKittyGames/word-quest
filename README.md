@@ -8,7 +8,7 @@ A cozy English vocabulary typing game made by **PinkKitty**.
 - Learn the Chinese meaning after each answer
 - See an English example sentence and Chinese translation
 - Score + streak system
-- 20 vocabulary words
+- 300 vocabulary words
 - Personal Revision Book
 - Revision Book is saved in the browser with `localStorage`
 - Responsive design for phones and desktop
