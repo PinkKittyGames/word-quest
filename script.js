@@ -311,25 +311,60 @@ const hint = $("hint");
 const bookDialog = $("bookDialog");
 const endDialog = $("endDialog");
 
+
+/* =========================
+   Revision Book
+========================= */
+
 function loadLearned() {
   try {
-    return JSON.parse(localStorage.getItem("pinkkitty-learned") || "[]");
+    const data = JSON.parse(
+      localStorage.getItem("pinkkitty-learned") || "[]"
+    );
+
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }
 }
 
 function saveLearned() {
-  localStorage.setItem("pinkkitty-learned", JSON.stringify(state.learned));
+  localStorage.setItem(
+    "pinkkitty-learned",
+    JSON.stringify(state.learned)
+  );
 }
 
+
+/* =========================
+   Shuffle
+========================= */
+
 function shuffle(array) {
-  return [...array].sort(() => Math.random() - 0.5);
+  const result = [...array];
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
 }
+
+
+/* =========================
+   Current Word
+========================= */
 
 function currentWord() {
   return state.words[state.index];
 }
+
+
+/* =========================
+   Start Game
+========================= */
 
 function startGame() {
   state.words = shuffle(WORDS);
@@ -337,191 +372,392 @@ function startGame() {
   state.score = 0;
   state.streak = 0;
   state.answered = false;
+
   updateStats();
   showWord();
 }
 
+
+/* =========================
+   Show Word
+========================= */
+
 function showWord() {
   const item = currentWord();
+
+  if (!item) return;
+
   state.answered = false;
 
   targetWord.textContent = item.word;
+
   hint.textContent = "Take a guess — you've got this!";
+
   answerInput.value = "";
   answerInput.disabled = false;
+
   $("answerForm").classList.remove("hidden");
   $("skipButton").classList.remove("hidden");
+
   feedback.classList.add("hidden");
+  feedback.classList.remove("correct", "wrong");
+
   nextButton.classList.add("hidden");
 
   const number = state.index + 1;
-  progressText.textContent = `Word ${number} of ${state.words.length}`;
-  progressBar.style.width = `${(number / state.words.length) * 100}%`;
-  message.textContent = state.streak > 1 ? `${state.streak} in a row! ✨` : "Take your time ♡";
 
-  requestAnimationFrame(() => answerInput.focus());
+  progressText.textContent =
+    `Word ${number} of ${state.words.length}`;
+
+  progressBar.style.width =
+    `${(number / state.words.length) * 100}%`;
+
+  message.textContent =
+    state.streak > 1
+      ? `${state.streak} in a row! ✨`
+      : "Take your time ♡";
+
+  requestAnimationFrame(() => {
+    answerInput.focus();
+  });
 }
+
+
+/* =========================
+   Update Stats
+========================= */
 
 function updateStats() {
   scoreEl.textContent = state.score;
-  streakEl.textContent = `${state.streak} 🔥`;
-  wordCount.textContent = `${Math.min(state.index, state.words.length)} / ${state.words.length || 20}`;
+
+  streakEl.textContent =
+    `${state.streak} 🔥`;
+
+  /*
+    index 从 0 开始，
+    所以这里要 +1 才不会一开始显示 0。
+  */
+
+  const currentNumber =
+    state.words.length > 0
+      ? Math.min(state.index + 1, state.words.length)
+      : 0;
+
+  wordCount.textContent =
+    `${currentNumber} / ${state.words.length || 20}`;
 }
+
+
+/* =========================
+   Check Answer
+========================= */
 
 function checkAnswer(event) {
   event.preventDefault();
+
   if (state.answered) return;
 
-  const answer = answerInput.value.trim().toLowerCase();
+  const answer =
+    answerInput.value.trim().toLowerCase();
 
   if (!answer) {
-    hint.textContent = "Type the word first ♡";
+    hint.textContent =
+      "Type the word first ♡";
+
     answerInput.focus();
     return;
   }
 
   const item = currentWord();
-  const correct = answer === item.word.toLowerCase();
+
+  if (!item) return;
+
+  const correct =
+    answer === item.word.toLowerCase();
 
   state.answered = true;
+
   answerInput.disabled = true;
+
   $("answerForm").classList.add("hidden");
   $("skipButton").classList.add("hidden");
 
-  feedback.classList.remove("hidden", "correct", "wrong");
+  feedback.classList.remove(
+    "hidden",
+    "correct",
+    "wrong"
+  );
+
+
+  /* =========================
+     Correct
+  ========================= */
 
   if (correct) {
+
     state.streak += 1;
-    state.score += 10 + Math.min(state.streak * 2, 20);
+
+    state.score +=
+      10 + Math.min(state.streak * 2, 20);
 
     feedback.classList.add("correct");
+
     feedbackIcon.textContent = "✓";
-    feedbackTitle.textContent = state.streak >= 3 ? "Amazing streak! 🎀" : "Correct! ✨";
+
+    feedbackTitle.textContent =
+      state.streak >= 3
+        ? "Amazing streak! 🎀"
+        : "Correct! ✨";
+
 
     feedbackText.innerHTML =
-      `<strong>${item.word}</strong> = ${item.meaning}<br>` +
-      `${item.example}<br>${item.translation}`;
+      `<strong>${escapeHTML(item.word)}</strong> = ` +
+      `${escapeHTML(item.meaning)}<br>` +
+      `${escapeHTML(item.example)}<br>` +
+      `${escapeHTML(item.translation)}`;
 
-    message.textContent = "Added to your Revision Book 📖";
+
+    message.textContent =
+      "Added to your Revision Book 📖";
+
     addLearned(item);
 
-  } else {
+  }
+
+
+  /* =========================
+     Wrong
+  ========================= */
+
+  else {
+
     state.streak = 0;
 
     feedback.classList.add("wrong");
+
     feedbackIcon.textContent = "!";
-    feedbackTitle.textContent = "Not quite — that's okay ♡";
+
+    feedbackTitle.textContent =
+      "Not quite — that's okay ♡";
+
 
     feedbackText.innerHTML =
-      `The answer is <strong>${item.word}</strong> = ${item.meaning}<br>` +
-      `${item.example}<br>${item.translation}`;
+      `The answer is ` +
+      `<strong>${escapeHTML(item.word)}</strong> = ` +
+      `${escapeHTML(item.meaning)}<br>` +
+      `${escapeHTML(item.example)}<br>` +
+      `${escapeHTML(item.translation)}`;
 
-    message.textContent = "You'll remember it next time!";
+
+    message.textContent =
+      "You'll remember it next time!";
   }
+
 
   updateStats();
 
   nextButton.classList.remove("hidden");
+
   nextButton.textContent =
     state.index === state.words.length - 1
       ? "Finish quest ✨"
       : "Next word →";
 }
 
+
+/* =========================
+   Add to Revision Book
+========================= */
+
 function addLearned(item) {
-  if (!state.learned.some(w => w.word === item.word)) {
-    state.learned.push(item);
+
+  const exists =
+    state.learned.some(
+      word => word.word === item.word
+    );
+
+  if (!exists) {
+
+    state.learned.push({
+      word: item.word,
+      meaning: item.meaning,
+      example: item.example,
+      translation: item.translation
+    });
+
     saveLearned();
   }
 }
 
+
+/* =========================
+   Skip Word
+========================= */
+
 function skipWord() {
+
   if (state.answered) return;
+
+  const item = currentWord();
+
+  if (!item) return;
 
   state.streak = 0;
   state.answered = true;
 
   answerInput.disabled = true;
+
   $("answerForm").classList.add("hidden");
   $("skipButton").classList.add("hidden");
 
-  const item = currentWord();
 
-  feedback.classList.remove("hidden", "correct", "wrong");
+  feedback.classList.remove(
+    "hidden",
+    "correct",
+    "wrong"
+  );
+
   feedback.classList.add("wrong");
 
   feedbackIcon.textContent = "→";
-  feedbackTitle.textContent = "Skipped";
+
+  feedbackTitle.textContent =
+    "Skipped";
+
 
   feedbackText.innerHTML =
-    `The word was <strong>${item.word}</strong> = ${item.meaning}<br>` +
-    `${item.example}<br>${item.translation}`;
+    `The word was ` +
+    `<strong>${escapeHTML(item.word)}</strong> = ` +
+    `${escapeHTML(item.meaning)}<br>` +
+    `${escapeHTML(item.example)}<br>` +
+    `${escapeHTML(item.translation)}`;
 
-  message.textContent = "No worries — learning takes repetition ♡";
+
+  message.textContent =
+    "No worries — learning takes repetition ♡";
+
 
   nextButton.classList.remove("hidden");
+
   nextButton.textContent =
     state.index === state.words.length - 1
       ? "Finish quest ✨"
       : "Next word →";
 
+
   updateStats();
 }
 
+
+/* =========================
+   Next Word
+========================= */
+
 function nextWord() {
+
   if (!state.answered) return;
 
-  if (state.index >= state.words.length - 1) {
+  if (
+    state.index >=
+    state.words.length - 1
+  ) {
     showEnd();
     return;
   }
 
   state.index += 1;
+
   updateStats();
+
   showWord();
 }
 
+
+/* =========================
+   End Game
+========================= */
+
 function showEnd() {
-  $("finalScore").textContent = state.score;
+
+  $("finalScore").textContent =
+    state.score;
+
   endDialog.showModal();
 }
 
+
+/* =========================
+   Revision Book
+========================= */
+
 function renderBook() {
+
   const list = $("bookList");
   const empty = $("bookEmpty");
 
   list.innerHTML = "";
 
+
   if (state.learned.length === 0) {
+
     empty.classList.remove("hidden");
+
     return;
   }
 
+
   empty.classList.add("hidden");
 
-  [...state.learned].reverse().forEach(item => {
-    const card = document.createElement("article");
-    card.className = "book-item";
 
-    card.innerHTML = `
-      <div class="book-word">
-        <strong>${escapeHTML(item.word)}</strong>
-        <span>${escapeHTML(item.meaning)}</span>
-      </div>
-      <p class="book-example">“${escapeHTML(item.example)}”</p>
-      <p>${escapeHTML(item.translation)}</p>
-    `;
+  [...state.learned]
+    .reverse()
+    .forEach(item => {
 
-    list.appendChild(card);
-  });
+      const card =
+        document.createElement("article");
+
+      card.className = "book-item";
+
+
+      card.innerHTML = `
+        <div class="book-word">
+          <strong>${escapeHTML(item.word)}</strong>
+          <span>${escapeHTML(item.meaning)}</span>
+        </div>
+
+        <p class="book-example">
+          “${escapeHTML(item.example)}”
+        </p>
+
+        <p>
+          ${escapeHTML(item.translation)}
+        </p>
+      `;
+
+
+      list.appendChild(card);
+    });
 }
 
+
+/* =========================
+   Open Revision Book
+========================= */
+
 function openBook() {
+
   renderBook();
+
   bookDialog.showModal();
 }
 
+
+/* =========================
+   Escape HTML
+========================= */
+
 function escapeHTML(value) {
+
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -530,28 +766,97 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-$("answerForm").addEventListener("submit", checkAnswer);
-$("skipButton").addEventListener("click", skipWord);
-nextButton.addEventListener("click", nextWord);
 
-$("bookButton").addEventListener("click", openBook);
-$("closeBook").addEventListener("click", () => bookDialog.close());
+/* =========================
+   Event Listeners
+========================= */
 
-$("playAgain").addEventListener("click", () => {
-  endDialog.close();
-  startGame();
-});
+$("answerForm")
+  .addEventListener(
+    "submit",
+    checkAnswer
+  );
 
-$("openBookFromEnd").addEventListener("click", () => {
-  endDialog.close();
-  openBook();
-});
 
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    if (bookDialog.open) bookDialog.close();
-    if (endDialog.open) endDialog.close();
+$("skipButton")
+  .addEventListener(
+    "click",
+    skipWord
+  );
+
+
+nextButton
+  .addEventListener(
+    "click",
+    nextWord
+  );
+
+
+$("bookButton")
+  .addEventListener(
+    "click",
+    openBook
+  );
+
+
+$("closeBook")
+  .addEventListener(
+    "click",
+    () => bookDialog.close()
+  );
+
+
+$("playAgain")
+  .addEventListener(
+    "click",
+    () => {
+
+      endDialog.close();
+
+      startGame();
+    }
+  );
+
+
+$("openBookFromEnd")
+  .addEventListener(
+    "click",
+    () => {
+
+      endDialog.close();
+
+      openBook();
+    }
+  );
+
+
+/* =========================
+   Escape Key
+========================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key !== "Escape") return;
+
+
+    if (bookDialog.open) {
+      bookDialog.close();
+    }
+
+
+    if (endDialog.open) {
+      endDialog.close();
+    }
   }
-});
+);
+
+
+/* =========================
+   Start
+========================= */
 
 startGame();
+
+  
