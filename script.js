@@ -327,6 +327,7 @@ const scoreEl = $("score");
 const streakEl = $("streak");
 const wordCount = $("wordCount");
 const hint = $("hint");
+const pronounceButton = $("pronounceButton");
 const bookDialog = $("bookDialog");
 const endDialog = $("endDialog");
 
@@ -378,6 +379,26 @@ function shuffle(array) {
 
 function currentWord() {
   return state.words[state.index];
+}
+function speakCurrentWord() {
+  const item = currentWord();
+
+  if (!item) return;
+
+  if (!("speechSynthesis" in window)) {
+    hint.textContent = "Your browser does not support pronunciation.";
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(item.word);
+
+  utterance.lang = "en-US";
+  utterance.rate = 0.85;
+  utterance.pitch = 1;
+
+  window.speechSynthesis.speak(utterance);
 }
 
 
