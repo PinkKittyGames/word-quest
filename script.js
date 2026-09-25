@@ -832,6 +832,13 @@ nextButton
   );
 
 
+pronounceButton
+  .addEventListener(
+    "click",
+    speakCurrentWord
+  );
+
+
 $("bookButton")
   .addEventListener(
     "click",
